@@ -6,7 +6,7 @@ setup(
     description='Watcher class to persist SCDS messages',
     author='Bruno Lorente',
     license='MIT',
-    install_requires=['psycopg2', 'lxml', 'watchdog'],
+    install_requires=['psycopg2', 'watchdog', 'xmltodict', 'json'],
     setup_requires=['pytest-runner'],
     tests_require=['pytest==4.4.1'],
     test_suite='tests',

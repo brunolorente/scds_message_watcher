@@ -1,12 +1,11 @@
 import sys
 import time
 import psycopg2
-
-from lxml import etree
+import xmltodict
+import json
 
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from pprint import pprint
 
 class ScdsMessageWatcher:
     def __init__(self, src_path):
@@ -37,7 +36,7 @@ class ScdsMessageWatcher:
             recursive=True
         )
 
-        # Tengo que sobrecargar el método para poder escuchaar únicamente los creados
+        # I need to overload the "on_created" method to listen just "created" files
         self.__event_handler.on_created = self.__on_created
 
     def __on_created(self, event):
@@ -45,9 +44,9 @@ class ScdsMessageWatcher:
 
     def read_file(self, file_path):
         # Reading file
-        parsed_file = etree.parse(file_path)
-        # To string
-        stringified_file = etree.tostring(parsed_file)
+        with open(file_path, 'r') as xml_file:
+            obj = xmltodict.parse(xml_file.read())
+            json_obj = json.dumps(obj)
 
         # Get file name
         path = file_path.split('/')
@@ -55,26 +54,23 @@ class ScdsMessageWatcher:
         identifier = path[index-1]
 
         # TODO: Call to persist_in_S3 
-        self.persist_in_db(data, identifier)
+        self.persist_in_db(json_obj, identifier)
 
 
-    def persist_in_db(self, xml_data, identifier):
-
+    def persist_in_db(self, json_data, identifier):
         try:
-            conn = psycopg2.connect(user="",
-                                password="",
-                                host="",
+            conn = psycopg2.connect(user="dba_demo",
+                                password="dba2021",
+                                host="10.7.0.243",
                                 port="5432",
                                 database="scds_watcher_data")
             cur = conn.cursor()
 
             sql_stmt = 'INSERT into xml_messages (id, data) VALUES (%s, %s)'
             id = identifier #This is the filenname ot timestamp
-            data = xml_data
+            data = json_data
             record_to_insert = (id, data)
-            pprint(record_to_insert)
-
-
+            
             cur.execute(sql_stmt, record_to_insert)
             conn.commit()
         
