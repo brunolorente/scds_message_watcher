@@ -1,0 +1,9 @@
+README.md
+setup.py
+scds_message_watcher/__init__.py
+scds_message_watcher/scds_message_watcher.py
+scds_message_watcher.egg-info/PKG-INFO
+scds_message_watcher.egg-info/SOURCES.txt
+scds_message_watcher.egg-info/dependency_links.txt
+scds_message_watcher.egg-info/requires.txt
+scds_message_watcher.egg-info/top_level.txt
